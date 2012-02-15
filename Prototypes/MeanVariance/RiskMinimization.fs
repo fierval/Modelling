@@ -33,11 +33,11 @@ module RiskMinimizationFormulation =
         do
             if fst variances.Dimensions <> snd variances.Dimensions 
             then 
-                invalidArg "expected square matrix" |> ignore
+                invalidArg "variances" "expected square matrix" 
 
             if expected.Length <> fst variances.Dimensions
             then
-                invalidArg "expectations matrix must have the same length as variance matrix dimensions" |> ignore
+                invalidArg "expected" "expectations matrix must have the same length as variance matrix dimensions" 
 
         let i' = i.Transpose
         let variances' = variances.Transpose
