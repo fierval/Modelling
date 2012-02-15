@@ -9,9 +9,12 @@ module Plotting
     open System.Reflection
     open MSDN.FSharp.Charting
     open MSDN.FSharp.Charting.ChartStyleExtensions
+    open System
+    open Microsoft.FSharp.Reflection
 
-    let createChartOfType (chartType : string) (y : float seq) =
-        let mi = typeof<FSharpChart>.GetMethod(chartType, [|typeof<float seq>|]) 
+    let createChartOfType (chartType : string) (y : #IConvertible seq)  =
+        let innerTp = typeof<seq<_>>.MakeGenericType( [|y.GetType() |])
+        let mi = typeof<FSharpChart>.GetMethod(chartType, [|innerTp|]) 
         mi.Invoke(null, [|y|]) :?> ChartTypes.GenericChart
 
     type ModellingShared() =
@@ -34,7 +37,7 @@ module Plotting
             Application.Run(ms :> Form)
 
         member ms.Plot 
-            (plotData : float seq seq, 
+            (plotData : #IConvertible seq seq, 
                 chartType : string, 
                 ?xLimits : float * float, 
                 ?yLimits : float * float, 
