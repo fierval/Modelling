@@ -1,6 +1,8 @@
 ﻿// Learn more about F# at http://fsharp.net
+namespace modelling.shared
 
-module Plotting
+[<AutoOpen>]
+module Plotting =
 
     open System.Drawing
     open System.Windows.Forms
@@ -12,7 +14,7 @@ module Plotting
     open System
     open Microsoft.FSharp.Reflection
 
-    let createChartOfType (chartType : string) (y : #IConvertible seq)  =
+    let internal createChartOfType (chartType : string) (y : #IConvertible seq)  =
         let innerTp = typeof<seq<_>>.MakeGenericType( [|y.GetType() |])
         let mi = typeof<FSharpChart>.GetMethod(chartType, [|innerTp|]) 
         mi.Invoke(null, [|y|]) :?> ChartTypes.GenericChart

@@ -1,4 +1,4 @@
-﻿using model.meanvariance;
+﻿using modelling.meanvariance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Microsoft.FSharp.Math;

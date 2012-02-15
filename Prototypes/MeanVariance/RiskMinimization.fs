@@ -1,5 +1,5 @@
 ﻿// Learn more about F# at http://fsharp.net
-namespace model.meanvariance
+namespace modelling.meanvariance
 
 [<AutoOpen>]
 module RiskMinimizationFormulation =
@@ -9,7 +9,7 @@ module RiskMinimizationFormulation =
     open System.Drawing
     open System.Windows.Forms
     open System.Windows.Forms.DataVisualization.Charting
-    open Plotting
+    open modelling.shared
 
     open MSDN.FSharp.Charting
     open MSDN.FSharp.Charting.ChartStyleExtensions
