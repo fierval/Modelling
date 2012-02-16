@@ -14,10 +14,17 @@ module Plotting =
     open System
     open Microsoft.FSharp.Reflection
 
-    let internal createChartOfType (chartType : string) (y : #IConvertible seq)  =
-        let innerTp = typeof<seq<_>>.MakeGenericType( [|y.GetType() |])
-        let mi = typeof<FSharpChart>.GetMethod(chartType, [|innerTp|]) 
-        mi.Invoke(null, [|y|]) :?> ChartTypes.GenericChart
+    let internal createChartOfType (chartType : string) name (y : #IConvertible seq)  =
+        let innerTp = y.GetType().GetGenericArguments().[0]
+        let mi = 
+            (typeof<FSharpChart>.GetMethods() 
+            |> Array.filter(
+                fun v -> 
+                    v.Name = chartType && v.GetParameters().Length = 1 && v.GetGenericArguments().Length = 1)).[0]
+            
+        let chart = mi.GetGenericMethodDefinition().MakeGenericMethod([|innerTp|]).Invoke(null, [|y|]) :?> ChartTypes.GenericChart
+        chart.Name <- name
+        chart
 
     type ModellingShared() =
         inherit Form()
@@ -39,22 +46,38 @@ module Plotting =
             Application.Run(ms :> Form)
 
         member ms.Plot 
-            (plotData : #IConvertible seq seq, 
-                chartType : string, 
-                ?xLimits : float * float, 
-                ?yLimits : float * float, 
-                ?margin : float32 * float32 * float32 * float32) =
+            (plotData : #seq<#IConvertible> seq, 
+                chartType : string,
+                ? names : string seq,
+                ? title : string,
+                ? xTitle : string,
+                ? yTitle : string, 
+                ? xLimits : float * float, 
+                ? yLimits : float * float, 
+                ? margin : float32 * float32 * float32 * float32) =
 
-            let mutable chart = FSharpChart.Combine ([for p in plotData -> createChartOfType chartType p ])
-            let marg = defaultArg margin (5.0f, 5.0f, 5.0f, 5.0f)
-            match xLimits with
-            | Some (xMin, xMax) -> chart <- FSharpChart.WithArea.AxisX(Minimum = xMin, Maximum= xMax, MajorGrid = Grid(LineColor = Color.LightGray)) chart
-            | None -> ()
+            let marg = defaultArg margin (2.0f, 12.0f, 2.0f, 2.0f)
+            let chartTitle = defaultArg title "Chart"
+            let xTitle = defaultArg xTitle String.Empty
+            let yTitle = defaultArg yTitle String.Empty
 
-            match yLimits with
-            | Some (yMin, yMax) -> chart <- FSharpChart.WithArea.AxisY(Minimum = yMin, Maximum= yMax, MajorGrid = Grid(LineColor = Color.LightGray)) chart
-            | None -> ()
+            let chartNames = defaultArg names (plotData |> Seq.mapi(fun i v -> "Series " + i.ToString()))
+            if (chartNames |> Seq.length) <> (plotData |> Seq.length) then invalidArg "names" "not of the right length"
             
-            chart <- (chart |> FSharpChart.WithMargin marg)
+            let plot = plotData |> Seq.zip chartNames
+            let mutable chart =  FSharpChart.Combine ([for p in plot -> createChartOfType chartType (fst p) (snd p)])
+            chart <- 
+                match xLimits with
+                | Some (xMin, xMax) -> FSharpChart.WithArea.AxisX(Minimum = xMin, Maximum= xMax, Title = xTitle, MajorGrid = Grid(LineColor = Color.LightGray)) chart
+                | None -> chart
+
+            chart <-
+                match yLimits with
+                | Some (yMin, yMax) -> FSharpChart.WithArea.AxisY(Minimum = yMin, Maximum= yMax, Title = yTitle, MajorGrid = Grid(LineColor = Color.LightGray)) chart
+                | None -> chart
+                |> FSharpChart.WithMargin marg
+
+            chart <- FSharpChart.WithLegend(InsideArea = false, Alignment = StringAlignment.Center, Docking = Docking.Top) chart
+            chart.Title <- StyleHelper.Title(chartTitle, FontSize = 10.0f, FontStyle = FontStyle.Bold)
             chartControl <- new ChartControl(chart, Dock = DockStyle.Fill)
             ms.plot

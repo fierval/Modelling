@@ -53,15 +53,17 @@ module RiskMinimizationFormulation =
         member rm.ComputeOptimal (expectation : float) =
             g + h * expectation    
 
-        member rm.ChartOptimalWeights (expectations : float list) =
+        member rm.ChartOptimalWeights (expectations : float list) (names : string seq) =
             let data = expectations |> List.map (fun v -> rm.ComputeOptimal v |> Vector.toArray |> List.ofArray) |> Matrix.ofList
 
             let n = snd data.Dimensions - 1
-            let plotData = seq {for i in 0 .. n -> data.Column(i).ToArray() |> Seq.ofArray}
-            rm.Plot(plotData, "Line", (5.0, 12.0), (-2.0, 2.0))
-
-
-
-                    
-
-
+            let plotData = seq {for i in 0 .. n -> data.Column(i).ToArray() |> List.ofArray}
+            rm.Plot(
+                plotData, 
+                "Line", 
+                xTitle = "Expected Return (%%)",
+                yTitle = "Asset Weight",
+                xLimits = (5.0, 12.0), 
+                yLimits = (-2.0, 2.0), 
+                names = names,
+                title = "Risk Minimization Model")

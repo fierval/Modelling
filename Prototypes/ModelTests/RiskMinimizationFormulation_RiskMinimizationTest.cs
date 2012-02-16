@@ -102,7 +102,7 @@ namespace ModelTests
             
             var range = ListModule.OfSeq(Enumerable.Range(50, 120).Where(e => e % 5 == 0).Select(e => (double)e / 1000D));
 
-            model.ChartOptimalWeights(range);
+            model.ChartOptimalWeights(range, new string [] {"Australia", "Austria", "Belgium", "Canada"});
 
         }
     }
