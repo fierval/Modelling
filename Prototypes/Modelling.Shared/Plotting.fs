@@ -14,13 +14,13 @@ module Plotting =
     open System
     open Microsoft.FSharp.Reflection
 
-    let internal createChartOfType (chartType : string) name (y : #IConvertible seq)  =
+    let internal createChartOfType (chartType : string) name (y : seq<#IConvertible * #IConvertible>)  =
         let innerTp = y.GetType().GetGenericArguments().[0]
         let mi = 
             (typeof<FSharpChart>.GetMethods() 
             |> Array.filter(
                 fun v -> 
-                    v.Name = chartType && v.GetParameters().Length = 1 && v.GetGenericArguments().Length = 1)).[0]
+                    v.Name = chartType && v.GetParameters().Length = 1 && v.GetGenericArguments().Length = 2)).[0]
             
         let chart = mi.GetGenericMethodDefinition().MakeGenericMethod([|innerTp|]).Invoke(null, [|y|]) :?> ChartTypes.GenericChart
         chart.Name <- name
@@ -46,7 +46,7 @@ module Plotting =
             Application.Run(ms :> Form)
 
         member ms.Plot 
-            (plotData : #seq<#IConvertible> seq, 
+            (plotData : #seq<#IConvertible * #IConvertible> seq, 
                 chartType : string,
                 ? seriesNames : string seq,
                 ? title : string,
@@ -56,7 +56,7 @@ module Plotting =
                 ? yLimits : float * float, 
                 ? margin : float32 * float32 * float32 * float32) =
 
-            let marg = defaultArg margin (2.0f, 12.0f, 2.0f, 2.0f)
+            let marg = defaultArg margin (4.0f, 12.0f, 4.0f, 4.0f)
             let chartTitle = defaultArg title "Chart"
             let xTitle = defaultArg xTitle String.Empty
             let yTitle = defaultArg yTitle String.Empty
@@ -68,15 +68,17 @@ module Plotting =
             let mutable chart =  FSharpChart.Combine ([for p in plot -> createChartOfType chartType (fst p) (snd p)])
             chart <- 
                 match xLimits with
-                | Some (xMin, xMax) -> FSharpChart.WithArea.AxisX(Minimum = xMin, Maximum= xMax, Title = xTitle, MajorGrid = Grid(LineColor = Color.LightGray)) chart
+                | Some (xMin, xMax) -> FSharpChart.WithArea.AxisX(Minimum = xMin, Maximum= xMax, MajorGrid = Grid(LineColor = Color.LightGray)) chart
                 | None -> chart
 
             chart <-
                 match yLimits with
-                | Some (yMin, yMax) -> FSharpChart.WithArea.AxisY(Minimum = yMin, Maximum= yMax, Title = yTitle, MajorGrid = Grid(LineColor = Color.LightGray)) chart
+                | Some (yMin, yMax) -> FSharpChart.WithArea.AxisY(Minimum = yMin, Maximum= yMax, MajorGrid = Grid(LineColor = Color.LightGray)) chart
                 | None -> chart
                 |> FSharpChart.WithMargin marg
 
+            chart.Area.AxisX.Title <- xTitle
+            chart.Area.AxisY.Title <- yTitle
             chart <- FSharpChart.WithLegend(InsideArea = false, Alignment = StringAlignment.Center, Docking = Docking.Top) chart
             chart.Title <- StyleHelper.Title(chartTitle, FontSize = 10.0f, FontStyle = FontStyle.Bold)
             chartControl <- new ChartControl(chart, Dock = DockStyle.Fill)

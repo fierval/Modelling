@@ -41,6 +41,12 @@
     <Reference Include="FSharp.PowerPack">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\FSharpPowerPack-2.0.0.0\bin\FSharp.PowerPack.dll</HintPath>
     </Reference>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>..\..\..\MathNet.Numerics\lib\Net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics.FSharp">
+      <HintPath>..\..\..\MathNet.Numerics\lib\Net40\MathNet.Numerics.FSharp.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="MSDN.FSharpChart">

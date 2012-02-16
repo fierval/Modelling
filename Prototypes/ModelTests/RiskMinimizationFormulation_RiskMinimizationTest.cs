@@ -105,5 +105,22 @@ namespace ModelTests
             model.ChartOptimalWeights(range, new string [] {"Australia", "Austria", "Belgium", "Canada"});
 
         }
+
+        [TestMethod]
+        public void ChartStd()
+        {
+            Vector<double> expected = VectorModule.ofArray(new double[] { 0.079, 0.079, 0.09, 0.071 });
+
+            Matrix<double> correlations = MatrixModule.ofArray2D(new double[,] { { 1.0, 0F, 0F, 0F }, { 0.24, 1.0, 0F, 0F }, { 0.25, 0.47, 1.0, 0F }, { 0.22, 0.14, 0.25, 1.0 } });
+
+            Vector<double> stdDeviations = VectorModule.ofArray(new double[] { 0.195, 0.182, 0.183, 0.165 });
+            RiskMinimizationFormulation.RiskMinimization model = new RiskMinimizationFormulation.RiskMinimization(expected, correlations, stdDeviations);
+
+            var range = ListModule.OfSeq(Enumerable.Range(50, 120).Where(e => e % 5 == 0).Select(e => (double)e / 1000D));
+
+            model.ChartStandardDeviation(range);
+
+        }
+
     }
 }
