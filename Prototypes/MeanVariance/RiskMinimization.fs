@@ -60,14 +60,15 @@ module RiskMinimizationFormulation =
             let data = expectations |> List.map (fun v -> rm.ComputeOptimal v |> SimpleVector.toArray |> List.ofArray) |> SimpleMatrix.ofList
 
             let n = snd data.Dimensions - 1
-            let plotData =  seq {for i in 0 .. n -> data.Column(i).ToArray() |> List.ofArray |> List.zip expectations} 
+            let plotData =  seq {for i in 0 .. n -> data.Column(i).ToArray() |> List.ofArray} 
             rm.Plot(
-                plotData, 
+                expectations |> List.map(fun v -> v * 100.), 
+                plotData,
                 "Line", 
-                xTitle = "Expected Return (%)",
+                xTitle = "Expected Return",
                 yTitle = "Asset Weight",
-                xLimits = (5.0, 12.0), 
-                yLimits = (-2.0, 2.0), 
+                xLimits = (5., 12.),
+                yLimits = (-2.0, 3.0),
                 seriesNames = names,
                 title = "Risk Minimization Model")
         
@@ -76,12 +77,15 @@ module RiskMinimizationFormulation =
             Math.Sqrt(weights.Transpose * variances * weights)
 
         member rm.ChartStandardDeviation (expectations : float list) =
-            let data = (expectations |> List.map(fun v -> 100.0 * rm.ComputeStandardDeviation v) |> List.zip expectations) :: []
+            let data = (expectations |> List.map(fun v -> 100.0 * rm.ComputeStandardDeviation v))
             rm.Plot(
                 data,
+                [expectations |> List.map(fun v -> v * 100.)],
                 "Line",
-                xLimits = (5.0, 12.0), 
-                yTitle = "Standar Deviation",
-                xTitle = "Expectation",
+                yLimits = (5.0, 12.0),
+                xLimits = (10.0, 55.0),
+                xTitle = "Standard Deviation",
+                yTitle = "Expectation",
+                seriesNames = ["Mean-Variance Efficient Frontier"],
                 title = "Standard Deviation Chart"
                     )
