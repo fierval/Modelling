@@ -61,9 +61,9 @@ module RiskMinimizationFormulation =
             rm.Plot(
                 plotData, 
                 "Line", 
-                xTitle = "Expected Return (%%)",
+                xTitle = "Expected Return (%)",
                 yTitle = "Asset Weight",
                 xLimits = (5.0, 12.0), 
                 yLimits = (-2.0, 2.0), 
-                names = names,
+                seriesNames = names,
                 title = "Risk Minimization Model")

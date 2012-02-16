@@ -48,7 +48,7 @@ module Plotting =
         member ms.Plot 
             (plotData : #seq<#IConvertible> seq, 
                 chartType : string,
-                ? names : string seq,
+                ? seriesNames : string seq,
                 ? title : string,
                 ? xTitle : string,
                 ? yTitle : string, 
@@ -61,7 +61,7 @@ module Plotting =
             let xTitle = defaultArg xTitle String.Empty
             let yTitle = defaultArg yTitle String.Empty
 
-            let chartNames = defaultArg names (plotData |> Seq.mapi(fun i v -> "Series " + i.ToString()))
+            let chartNames = defaultArg seriesNames (plotData |> Seq.mapi(fun i v -> "Series " + i.ToString()))
             if (chartNames |> Seq.length) <> (plotData |> Seq.length) then invalidArg "names" "not of the right length"
             
             let plot = plotData |> Seq.zip chartNames
