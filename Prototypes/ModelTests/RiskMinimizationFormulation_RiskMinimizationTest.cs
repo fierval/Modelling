@@ -1,7 +1,8 @@
 ﻿using modelling.meanvariance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Microsoft.FSharp.Math;
+using MathNet.Numerics.LinearAlgebra.Double;
+
 using Microsoft.FSharp.Collections;
 using System.Linq;
 using System.Threading;
@@ -69,51 +70,29 @@ namespace ModelTests
         #endregion
 
 
-        /// <summary>
-        ///A test for ComputeOptimal
-        ///</summary>
-        [TestMethod()]
-        public void ComputeOptimalTest()
-        {
-            Vector<double> expected = VectorModule.ofArray(new double [] { 0.079, 0.079, 0.09, 0.071 });
-
-            Matrix<double> correlations = MatrixModule.ofArray2D(new double [,] 
-                {{1.0, 0F, 0F, 0F}, {0.24, 1.0, 0F, 0F}, {0.25, 0.47, 1.0, 0F}, {0.22, 0.14, 0.25, 1.0} }); 
-
-            Vector<double> stdDeviations = VectorModule.ofArray(new double [] { 0.195, 0.182, 0.183, 0.165});
-            RiskMinimizationFormulation.RiskMinimization target = new RiskMinimizationFormulation.RiskMinimization(expected, correlations, stdDeviations);
-            double expectation = 0.08;
-            Vector<double> expected1 = null; // TODO: Initialize to an appropriate value
-            Vector<double> actual;
-            actual = target.ComputeOptimal(expectation);
-            Assert.AreEqual(expected1, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
         [TestMethod]
         public void ChartWeights()
         {
-            Vector<double> expected = VectorModule.ofArray(new double[] { 0.079, 0.079, 0.09, 0.071 });
+            Vector expected =  new DenseVector (new double [] { 0.079, 0.079, 0.09, 0.071 });
 
-            Matrix<double> correlations = MatrixModule.ofArray2D(new double[,] { { 1.0, 0F, 0F, 0F }, { 0.24, 1.0, 0F, 0F }, { 0.25, 0.47, 1.0, 0F }, { 0.22, 0.14, 0.25, 1.0 } });
+            Matrix correlations = new DenseMatrix(new double[,] { { 1.0, 0F, 0F, 0F }, { 0.24, 1.0, 0F, 0F }, { 0.25, 0.47, 1.0, 0F }, { 0.22, 0.14, 0.25, 1.0 } });
 
-            Vector<double> stdDeviations = VectorModule.ofArray(new double[] { 0.195, 0.182, 0.183, 0.165 });
+            Vector stdDeviations = new DenseVector(new double[] { 0.195, 0.182, 0.183, 0.165 });
             RiskMinimizationFormulation.RiskMinimization model = new RiskMinimizationFormulation.RiskMinimization(expected, correlations, stdDeviations);
             
             var range = ListModule.OfSeq(Enumerable.Range(50, 120).Where(e => e % 5 == 0).Select(e => (double)e / 1000D));
 
             model.ChartOptimalWeights(range, new string [] {"Australia", "Austria", "Belgium", "Canada"});
-            model.ChartStandardDeviation(range);
         }
 
         [TestMethod]
         public void ChartStd()
         {
-            Vector<double> expected = VectorModule.ofArray(new double[] { 0.079, 0.079, 0.09, 0.071 });
+            Vector expected = new DenseVector(new double[] { 0.079, 0.079, 0.09, 0.071 });
 
-            Matrix<double> correlations = MatrixModule.ofArray2D(new double[,] { { 1.0, 0F, 0F, 0F }, { 0.24, 1.0, 0F, 0F }, { 0.25, 0.47, 1.0, 0F }, { 0.22, 0.14, 0.25, 1.0 } });
+            Matrix correlations = new DenseMatrix(new double[,] { { 1.0, 0F, 0F, 0F }, { 0.24, 1.0, 0F, 0F }, { 0.25, 0.47, 1.0, 0F }, { 0.22, 0.14, 0.25, 1.0 } });
 
-            Vector<double> stdDeviations = VectorModule.ofArray(new double[] { 0.195, 0.182, 0.183, 0.165 });
+            Vector stdDeviations = new DenseVector(new double[] { 0.195, 0.182, 0.183, 0.165 });
             RiskMinimizationFormulation.RiskMinimization model = new RiskMinimizationFormulation.RiskMinimization(expected, correlations, stdDeviations);
 
             var range = ListModule.OfSeq(Enumerable.Range(50, 120).Where(e => e % 5 == 0).Select(e => (double)e / 1000D));

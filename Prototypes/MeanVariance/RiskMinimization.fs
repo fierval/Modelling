@@ -6,7 +6,6 @@ module RiskMinimizationFormulation =
     
     open System
     open MathNet.Numerics.FSharp
-    open Microsoft.FSharp.Math
     open MathNet.Numerics.LinearAlgebra.Double
     open System.Drawing
     open System.Windows.Forms
@@ -16,36 +15,33 @@ module RiskMinimizationFormulation =
     open MSDN.FSharp.Charting
     open MSDN.FSharp.Charting.ChartStyleExtensions
 
-    module SimpleMatrix = Microsoft.FSharp.Math.Matrix
-    module SimpleVector = Microsoft.FSharp.Math.Vector
-
-    type RiskMinimization(expected : Vector<float>, correlations : Matrix<float>, stdDeviations : Vector<float>) =
+    type RiskMinimization(expected : Vector, correlations : Matrix, stdDeviations : Vector) =
         inherit ModellingShared()
 
         let variances = 
             correlations 
-            |> SimpleMatrix.mapi 
+            |> Matrix.mapi 
                 (fun i j value -> 
                     let mutable v = value
                     if correlations.[i,j] = 0.0 
                     then 
                         v <- correlations.[j, i]
                     stdDeviations.[i] * stdDeviations.[j] * v)
-        let n = expected.Length
-        let i = Vector.create n 1.
+        let n = expected.Count
+        let i = MathNet.Numerics.FSharp.vector (List.init n (fun i -> 1.))
 
         do
-            if fst variances.Dimensions <> snd variances.Dimensions 
+            if variances.RowCount <> variances.ColumnCount 
             then 
                 invalidArg "variances" "expected square matrix" 
 
-            if expected.Length <> fst variances.Dimensions
+            if expected.Count <> variances.RowCount
             then
                 invalidArg "expected" "expectations matrix must have the same length as variance matrix dimensions" 
 
-        let i' = i.Transpose
-        let variancesInv = (new DenseMatrix(variances |> Matrix.toArray2D)).Inverse().ToArray() |> SimpleMatrix.ofArray2D
-        let expected' = expected.Transpose
+        let i' = i.ToRowMatrix().Row(0)
+        let variancesInv = variances.Inverse()
+        let expected' = expected.ToRowMatrix().Row(0)
         let a = i' * variancesInv * i
         let b = i' * variancesInv * expected
         let c = expected' * variancesInv * expected
@@ -54,17 +50,17 @@ module RiskMinimizationFormulation =
         let h = denom * (variancesInv * (a * expected - b * i))
 
         member rm.ComputeOptimal (expectation : float) =
-            g + h * expectation    
+            g + h * expectation
 
         member rm.ChartOptimalWeights (expectations : float list) (names : string seq) =
-            let data = expectations |> List.map (fun v -> rm.ComputeOptimal v |> SimpleVector.toArray |> List.ofArray) |> SimpleMatrix.ofList
+            let data = matrix(expectations |> List.map (fun v -> (rm.ComputeOptimal v |> Vector.toList)))
 
-            let n = snd data.Dimensions - 1
+            let n = data.ColumnCount - 1
             let plotData =  seq {for i in 0 .. n -> data.Column(i).ToArray() |> List.ofArray} 
             rm.Plot(
-                expectations |> List.map(fun v -> v * 100.), 
-                plotData,
                 "Line", 
+                plotData,
+                plotX = (expectations |> List.map(fun v -> v * 100.)), 
                 xTitle = "Expected Return",
                 yTitle = "Asset Weight",
                 xLimits = (5., 12.),
@@ -74,18 +70,17 @@ module RiskMinimizationFormulation =
         
         member rm.ComputeStandardDeviation (expectation : float) =
             let weights = rm.ComputeOptimal expectation
-            Math.Sqrt(weights.Transpose * variances * weights)
+            Math.Sqrt(weights.ToRowMatrix().Row(0) * variances * weights)
 
         member rm.ChartStandardDeviation (expectations : float list) =
             let data = (expectations |> List.map(fun v -> 100.0 * rm.ComputeStandardDeviation v))
             rm.Plot(
-                data,
-                [expectations |> List.map(fun v -> v * 100.)],
                 "Line",
+                [expectations |> List.map(fun v -> v * 100.)],
+                plotX = data,
                 yLimits = (5.0, 12.0),
                 xLimits = (10.0, 55.0),
                 xTitle = "Standard Deviation",
                 yTitle = "Expectation",
                 seriesNames = ["Mean-Variance Efficient Frontier"],
-                title = "Standard Deviation Chart"
-                    )
+                title = "Standard Deviation Chart")                   

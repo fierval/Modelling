@@ -13,44 +13,57 @@ module Plotting =
     open MSDN.FSharp.Charting
     open MSDN.FSharp.Charting.ChartStyleExtensions
     open System
-    open Microsoft.FSharp.Reflection
 
-    let internal createChartOfType (chartType : string) name (y : seq<#IConvertible * #IConvertible>)  =
-        let innerTps = FSharpType.GetTupleElements(y.GetType().GetGenericArguments().[0])
+    let (|FindChartOfType|_|) numGenericArgs chartType =
         let mi = 
             (typeof<FSharpChart>.GetMethods() 
             |> Array.filter(
                 fun v -> 
-                    v.Name = chartType && v.GetParameters().Length = 1 && v.GetGenericArguments().Length = 2)).[0]
-            
-        let chart = mi.GetGenericMethodDefinition().MakeGenericMethod(innerTps).Invoke(null, [|y|]) :?> ChartTypes.GenericChart
-        chart.Name <- name
-        chart
+                    v.Name = chartType && v.GetParameters().Length = 1 && v.GetGenericArguments().Length = numGenericArgs)).[0]
+        match mi with
+        | x when x = Unchecked.defaultof<MethodInfo> -> None
+        |_ -> Some mi
 
     type ModellingShared() =
         inherit Form()
         
         let mutable chartControl : ChartControl = Unchecked.defaultof<ChartControl>
 
-        member private ms.plot =
-            if chartControl = Unchecked.defaultof<ChartControl> 
-            then invalidArg "chartControl" "not initialized"
-            
-            ms.SuspendLayout();
-            ms.Controls.Add(chartControl)
-
-            // define form properties
-            ms.ClientSize <- new Size(600, 600)
-            ms.ResumeLayout(false)
-            ms.PerformLayout()
+        let createForm (chart : ChartTypes.CombinedChart) =
+            let chartForm = new ChartForm<ChartData.DataSourceCombined>(chart)
+            chartForm.SuspendLayout()
+            chartForm.Controls.Add(chartControl)
+            chartForm.Text <- "Chart"
+            chartForm.ClientSize <- new Size(600, 600)
+            chartForm.ResumeLayout(false)
+            chartForm.PerformLayout()
             Application.EnableVisualStyles()
-            Application.Run(ms :> Form)
+            Application.Run(chartForm :> Form)
+        
+        let findAndCreateChart chartType (genericArgs : Type []) name y =
+            let mi =
+                match chartType with
+                | FindChartOfType genericArgs.Length mi -> mi
+                | _ -> invalidArg "chartType " ("Chart of type " + chartType + " not found")
 
+            let chart = mi.GetGenericMethodDefinition().MakeGenericMethod(genericArgs).Invoke(null, [|y|]) :?> ChartTypes.GenericChart
+            chart.Name <- name
+            chart
+
+
+        member private ms.createChartOfType ((chartType : string), name, (y : seq<#IConvertible * #IConvertible>))  =
+            let innerTps = FSharpType.GetTupleElements(y.GetType().GetGenericArguments().[0])
+            findAndCreateChart chartType innerTps name y
+
+        member private ms.createChartOfType ((chartType : string), name, (y : seq<#IConvertible>))  =
+            let innerTp = y.GetType().GetGenericArguments().[0]
+            findAndCreateChart chartType [|innerTp|] name y
+  
         member ms.Plot 
             (
-            plotX : list<#IConvertible>,
-            plotData : list<#IConvertible> seq, 
             chartType : string,
+            plotY : list<#IConvertible> seq, 
+            ? plotX : list<#IConvertible>,
             ? seriesNames : string seq,
             ? title : string,
             ? xTitle : string,
@@ -64,17 +77,22 @@ module Plotting =
             let xTitle = defaultArg xTitle String.Empty
             let yTitle = defaultArg yTitle String.Empty
 
-            let chartNames = defaultArg seriesNames (plotData |> Seq.mapi(fun i v -> "Series " + i.ToString()))
-            if (chartNames |> Seq.length) <> (plotData |> Seq.length) then invalidArg "names" "not of the right length"
+            let chartNames = defaultArg seriesNames (plotY |> Seq.mapi(fun i v -> "Series " + i.ToString()))
+            if (chartNames |> Seq.length) <> (plotY |> Seq.length) then invalidArg "names" "not of the right length"
             
             // zip up the relevant information together
             // x-values go with every y-series values in a tuple
             // series names gets zipped with every sequence of (x, y) tuples: (name, (x, y))
-            let plot = plotData |> Seq.map(fun s -> List.zip plotX s) |> Seq.zip chartNames
+            let mutable chart = 
+                match plotX with
+                |Some plotX ->
+                    let plot = plotY |> Seq.map(fun s -> List.zip plotX s) |> Seq.zip chartNames
+                    FSharpChart.Combine ([for p in plot -> ms.createChartOfType (chartType, (fst p), (snd p))])
 
-            //create the chart
-            let mutable chart =  
-                FSharpChart.Combine ([for p in plot -> createChartOfType chartType (fst p) (snd p)])
+                | None -> 
+                    let plot = plotY |> Seq.zip chartNames
+                    FSharpChart.Combine ([for p in plot -> ms.createChartOfType (chartType, (fst p), (snd p))])
+
             
             //add x and y limits
             chart <- 
@@ -103,4 +121,5 @@ module Plotting =
             //create the control
             chartControl <- new ChartControl(chart, Dock = DockStyle.Fill)
 
-            ms.plot
+            //create the form
+            createForm chart
