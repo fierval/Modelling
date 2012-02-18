@@ -24,46 +24,38 @@ module Plotting =
         | x when x = Unchecked.defaultof<MethodInfo> -> None
         |_ -> Some mi
 
-    type ModellingShared() =
-        inherit Form()
-        
-        let mutable chartControl : ChartControl = Unchecked.defaultof<ChartControl>
-
-        let createForm (chart : ChartTypes.CombinedChart) =
+    let createForm (chart : ChartTypes.CombinedChart) =
             let chartForm = new ChartForm<ChartData.DataSourceCombined>(chart)
-            chartForm.SuspendLayout()
-            chartForm.Controls.Add(chartControl)
             chartForm.Text <- "Chart"
             chartForm.ClientSize <- new Size(600, 600)
-            chartForm.ResumeLayout(false)
-            chartForm.PerformLayout()
             Application.EnableVisualStyles()
             Application.Run(chartForm :> Form)
-        
-        let findAndCreateChart chartType (genericArgs : Type []) name y =
-            let mi =
-                match chartType with
-                | FindChartOfType genericArgs.Length mi -> mi
-                | _ -> invalidArg "chartType " ("Chart of type " + chartType + " not found")
 
-            let chart = mi.GetGenericMethodDefinition().MakeGenericMethod(genericArgs).Invoke(null, [|y|]) :?> ChartTypes.GenericChart
-            chart.Name <- name
-            chart
+    let findAndCreateChart chartType (genericArgs : Type []) name y =
+        let mi =
+            match chartType with
+            | FindChartOfType genericArgs.Length mi -> mi
+            | _ -> invalidArg "chartType " ("Chart of type " + chartType + " not found")
 
+        let chart = mi.GetGenericMethodDefinition().MakeGenericMethod(genericArgs).Invoke(null, [|y|]) :?> ChartTypes.GenericChart
+        chart.Name <- name
+        chart
 
-        member private ms.createChartOfType ((chartType : string), name, (y : seq<#IConvertible * #IConvertible>))  =
+    type Charting () =  
+
+        static member private createChartOfType ((chartType : string), name, (y : seq<#IConvertible * #IConvertible>))  =
             let innerTps = FSharpType.GetTupleElements(y.GetType().GetGenericArguments().[0])
             findAndCreateChart chartType innerTps name y
 
-        member private ms.createChartOfType ((chartType : string), name, (y : seq<#IConvertible>))  =
+        static member private createChartOfType ((chartType : string), name, (y : seq<#IConvertible>))  =
             let innerTp = y.GetType().GetGenericArguments().[0]
             findAndCreateChart chartType [|innerTp|] name y
   
-        member ms.Plot 
+        static member Plot 
             (
             chartType : string,
-            plotY : list<#IConvertible> seq, 
-            ? plotX : list<#IConvertible>,
+            plotY : #seq<#IConvertible> seq, 
+            ? plotX : #seq<#IConvertible>,
             ? seriesNames : string seq,
             ? title : string,
             ? xTitle : string,
@@ -76,7 +68,6 @@ module Plotting =
             let chartTitle = defaultArg title "Chart"
             let xTitle = defaultArg xTitle String.Empty
             let yTitle = defaultArg yTitle String.Empty
-
             let chartNames = defaultArg seriesNames (plotY |> Seq.mapi(fun i v -> "Series " + i.ToString()))
             if (chartNames |> Seq.length) <> (plotY |> Seq.length) then invalidArg "names" "not of the right length"
             
@@ -87,11 +78,11 @@ module Plotting =
                 match plotX with
                 |Some plotX ->
                     let plot = plotY |> Seq.map(fun s -> List.zip plotX s) |> Seq.zip chartNames
-                    FSharpChart.Combine ([for p in plot -> ms.createChartOfType (chartType, (fst p), (snd p))])
+                    FSharpChart.Combine ([for p in plot -> Charting.createChartOfType (chartType, (fst p), (snd p))])
 
                 | None -> 
                     let plot = plotY |> Seq.zip chartNames
-                    FSharpChart.Combine ([for p in plot -> ms.createChartOfType (chartType, (fst p), (snd p))])
+                    FSharpChart.Combine ([for p in plot -> Charting.createChartOfType (chartType, (fst p), (snd p))])
 
             
             //add x and y limits
@@ -117,9 +108,6 @@ module Plotting =
 
             //add title
             chart.Title <- StyleHelper.Title(chartTitle, FontSize = 10.0f, FontStyle = FontStyle.Bold)
-
-            //create the control
-            chartControl <- new ChartControl(chart, Dock = DockStyle.Fill)
 
             //create the form
             createForm chart
