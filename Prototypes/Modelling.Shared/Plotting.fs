@@ -7,7 +7,6 @@ module Plotting =
     open System.Drawing
     open System.Windows.Forms
     open System.Windows.Forms.DataVisualization.Charting
-    open Microsoft.FSharp.Metadata
     open Microsoft.FSharp.Reflection
     open System.Reflection
     open MSDN.FSharp.Charting
