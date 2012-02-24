@@ -53,8 +53,8 @@ module Plotting =
         static member Plot 
             (
             chartType : string,
-            plotY : #seq<#IConvertible> seq, 
-            ? plotX : #seq<#IConvertible>,
+            plotY : list<#IConvertible> seq, 
+            ? plotX : list<#IConvertible>,
             ? seriesNames : string seq,
             ? title : string,
             ? xTitle : string,

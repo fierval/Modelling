@@ -35,8 +35,9 @@
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="FSharp.PowerPack, Version=2.0.0.0, Culture=neutral, PublicKeyToken=a19089b1c74d0809, processorArchitecture=MSIL" />
-    <Reference Include="MathNet.Numerics, Version=2011.4.17.0, Culture=neutral, PublicKeyToken=cd8b63ad3d691a37, processorArchitecture=MSIL">
-      <HintPath>..\..\..\MathNet.Numerics\lib\Net40\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=2.1.2.21, Culture=neutral, PublicKeyToken=cd8b63ad3d691a37, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MathNet.Numerics.2.1.2\lib\Net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="MSDN.FSharpChart">
@@ -50,6 +51,7 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="zlib.net, Version=1.0.3.0, Culture=neutral, PublicKeyToken=47d7877cb3620160" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
@@ -57,6 +59,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ParallelVariance_ParallelVarianceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RiskMinimizationFormulation_RiskMinimizationTest.cs" />
   </ItemGroup>
@@ -69,6 +72,13 @@
       <Project>{BD239699-D9D1-4CB8-B376-C7A918965C68}</Project>
       <Name>Modelling.Shared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ParallelVariance\ParallelVariance.fsproj">
+      <Project>{9EC8C916-27DE-4BF9-A583-02A77C29D25E}</Project>
+      <Name>ParallelVariance</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

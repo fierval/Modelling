@@ -39,10 +39,10 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MathNet.Numerics">
-      <HintPath>..\..\..\MathNet.Numerics\lib\Net40\MathNet.Numerics.dll</HintPath>
+      <HintPath>..\packages\MathNet.Numerics.2.1.2\lib\Net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics.FSharp">
-      <HintPath>..\..\..\MathNet.Numerics\lib\Net40\MathNet.Numerics.FSharp.dll</HintPath>
+      <HintPath>..\packages\MathNet.Numerics.FSharp.2.1.2\lib\Net40\MathNet.Numerics.FSharp.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
