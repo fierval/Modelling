@@ -43,7 +43,7 @@ namespace ParallelVarianceCalc
                 sw.Reset();
 
                 sw.Start();
-                double loopTask = Math.Round(ParallelVariance.VarianceForCummul(data), 4, MidpointRounding.AwayFromZero);
+                double loopTask = Math.Round(ParallelVariance.VarianceForTask(data), 4, MidpointRounding.AwayFromZero);
                 sw.Stop();
                 var elapsedVarianceForTask = sw.ElapsedMilliseconds;
                 sw.Reset();

@@ -41,12 +41,6 @@ module ParallelVariance =
 
         {M2 = M2; mean = mean; n = n}
 
-    let rec variance (m2List : auxValues list) =
-        match m2List with
-        | [hd] -> hd.M2 / hd.n
-        | hd::tl -> variance ((combineM2s hd tl.Head) :: tl.Tail)
-        | _ -> raise (FormatException("bad list of values"))
-
     let Variance2(data : double []) =
         let partition = data.Length / 2
         let finish = data.Length - 1
@@ -86,7 +80,8 @@ module ParallelVariance =
 
         let results = Task.Factory.ContinueWhenAll(tasks, fun tasks -> tasks |> Array.map(fun (v : Task<auxValues>) -> v.Result)).Result |> Array.toList
 
-        variance results
+        let res = results |> List.reduce combineM2s
+        res.M2 / res.n
 
     let VarianceForCummul (data : double []) =
         let monitor = new obj()
@@ -99,7 +94,8 @@ module ParallelVariance =
                 local := auxValuesOfSet data (fst range) ((snd range) - 1) :: !local; local),
             (fun local -> lock monitor (fun () -> m2list := !m2list @ !local))) |> ignore
 
-        variance !m2list
+        let res = !m2list |> List.reduce combineM2s
+        res.M2 / res.n
         
     let Variance (data : double []) =
         (auxValuesOfSet data 0 (data.Length - 1)).M2 / (float data.Length)    
