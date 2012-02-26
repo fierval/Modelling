@@ -45,10 +45,10 @@ module ParallelVariance =
         let partition = data.Length / 2
         let finish = data.Length - 1
         let tasks = 
-            Task.Factory.StartNew(fun () -> auxValuesOfSet data 0 partition) 
-                    :: Task.Factory.StartNew(fun () -> auxValuesOfSet data (partition + 1) finish)
-                    :: [] 
-                    |> List.toArray
+            [|
+                Task.Factory.StartNew(fun () -> auxValuesOfSet data 0 partition) 
+                Task.Factory.StartNew(fun () -> auxValuesOfSet data (partition + 1) finish)
+            |]
 
         let results = Task.Factory.ContinueWhenAll(tasks, fun tasks -> tasks |> Array.map(fun (v : Task<auxValues>) -> v.Result)).Result
         let res = combineM2s results.[0] results.[1]
