@@ -78,9 +78,9 @@ module ParallelVariance =
                 Task.Factory.StartNew(fun () -> auxValuesOfSet data (fst p) ((snd p) - 1))
             |] 
 
-        let results = Task.Factory.ContinueWhenAll(tasks, fun tasks -> tasks |> Array.map(fun (v : Task<auxValues>) -> v.Result)).Result |> Array.toList
+        let results = Task.Factory.ContinueWhenAll(tasks, fun tasks -> tasks |> Array.map(fun (v : Task<auxValues>) -> v.Result)).Result
 
-        let res = results |> List.reduce combineM2s
+        let res = results |> Array.reduce combineM2s
         res.M2 / res.n
 
     let VarianceForCummul (data : double []) =
