@@ -18,6 +18,12 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ParallelVariance", "Paralle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParallelVarianceCalc", "ParallelVarianceCalc\ParallelVarianceCalc.csproj", "{175ABED3-6F6C-4F9B-A27E-A8E5E478B220}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelDataLayer", "ModelDataLayer\ModelDataLayer.csproj", "{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MeanVarianceProjects", "MeanVarianceProjects", "{030F7BC5-3BED-4869-90A2-7EF8EDEF5A20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeanVarianceDb", "MeanVarianceDb\MeanVarianceDb.csproj", "{DF4619F5-60BB-4F0C-A332-CBE26453100A}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Prototypes.vsmdi
@@ -81,8 +87,34 @@ Global
 		{175ABED3-6F6C-4F9B-A27E-A8E5E478B220}.Release|Mixed Platforms.Build.0 = Release|x86
 		{175ABED3-6F6C-4F9B-A27E-A8E5E478B220}.Release|x86.ActiveCfg = Release|x86
 		{175ABED3-6F6C-4F9B-A27E-A8E5E478B220}.Release|x86.Build.0 = Release|x86
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A}.Release|x86.ActiveCfg = Release|Any CPU
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Debug|x86.ActiveCfg = Debug|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Debug|x86.Build.0 = Debug|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Release|Any CPU.ActiveCfg = Release|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Release|Mixed Platforms.Build.0 = Release|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Release|x86.ActiveCfg = Release|x86
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4A2F94B1-EBCC-446B-BA74-4A0D57B32857} = {030F7BC5-3BED-4869-90A2-7EF8EDEF5A20}
+		{2A3D77C4-CDEE-4E62-8573-2B8FCDF4002A} = {030F7BC5-3BED-4869-90A2-7EF8EDEF5A20}
+		{BD239699-D9D1-4CB8-B376-C7A918965C68} = {030F7BC5-3BED-4869-90A2-7EF8EDEF5A20}
+		{DF4619F5-60BB-4F0C-A332-CBE26453100A} = {030F7BC5-3BED-4869-90A2-7EF8EDEF5A20}
 	EndGlobalSection
 EndGlobal

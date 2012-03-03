@@ -24,10 +24,10 @@ module ParallelVariance =
         let mutable M2 = 0.
 
         for x = start to finish do
-                n <- n + 1.
-                let delta = data.[x] - mean
-                mean <- mean + delta/n
-                if n > 1. then M2 <- M2 + delta * (data.[x] - mean) 
+            n <- n + 1.
+            let delta = data.[x] - mean
+            mean <- mean + delta/n
+            if n > 1. then M2 <- M2 + delta * (data.[x] - mean) 
 
         {M2 = M2; mean = mean; n = float(finish - start + 1)}
 

@@ -8,6 +8,7 @@ module RiskMinimizationFormulation =
     open MathNet.Numerics.FSharp
     open MathNet.Numerics.LinearAlgebra.Double
     open modelling.shared
+    open ModelDataLayer
 
     type RiskMinimization(expected : Vector, correlations : Matrix, stdDeviations : Vector) =
         do
@@ -24,9 +25,12 @@ module RiskMinimizationFormulation =
             |> Matrix.mapi 
                 (fun i j value -> 
                     let mutable v = value
-                    if correlations.[i,j] = 0.0 
+                    if correlations.[i,j] = 0.0 && i <> j
                     then 
                         v <- correlations.[j, i]
+                    elif correlations.[i,j] = 0.0 // && i = j
+                    then
+                        v <- 1.
                     stdDeviations.[i] * stdDeviations.[j] * v)
         let n = expected.Count
         let i = vector (List.init n (fun i -> 1.))
@@ -73,3 +77,14 @@ module RiskMinimizationFormulation =
                 yTitle = "Expectation",
                 seriesNames = ["Mean-Variance Efficient Frontier"],
                 title = "Standard Deviation Chart")                   
+
+    let CreateRiskMinimization (expected : double []) (corelations : double [,]) (stdDeviations : double []) =
+        RiskMinimization (DenseVector(expected), DenseMatrix(corelations), DenseVector(stdDeviations))
+
+    let CreateRiskMinimizationFromDb =
+        use dataLayer = new MeanVarianceData()
+        let expectation = dataLayer.GetExpected() |> Seq.toArray
+        let corelations = dataLayer.GetCorelations()
+        let stds = dataLayer.GetStds() |> Seq.toArray
+        let names = dataLayer.GetMarketNames()
+        CreateRiskMinimization expectation corelations stds
