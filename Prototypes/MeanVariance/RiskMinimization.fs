@@ -81,7 +81,7 @@ module RiskMinimizationFormulation =
     let CreateRiskMinimization (expected : double []) (corelations : double [,]) (stdDeviations : double []) =
         RiskMinimization (DenseVector(expected), DenseMatrix(corelations), DenseVector(stdDeviations))
 
-    let CreateRiskMinimizationFromDb =
+    let CreateRiskMinimizationFromDb ()=
         use dataLayer = new MeanVarianceData()
         let expectation = dataLayer.GetExpected() |> Seq.toArray
         let corelations = dataLayer.GetCorelations()
