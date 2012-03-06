@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ModelDataLayer
 {
-    public class MeanVarianceData : IDisposable
+    public sealed class MeanVarianceData : IDisposable
     {
         MeanVarianceEntities entities;
         List<Market> markets;
@@ -48,11 +48,16 @@ namespace ModelDataLayer
 
         public void Dispose()
         {
-            this.entities.Dispose();
+            Close();
             GC.SuppressFinalize(this);
         }
 
         ~MeanVarianceData()
+        {
+            Close();
+        }
+
+        void Close()
         {
             this.entities.Dispose();
         }
